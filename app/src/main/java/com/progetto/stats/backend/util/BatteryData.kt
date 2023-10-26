@@ -1,4 +1,4 @@
-package com.progetto.stats.util
+package com.progetto.stats.backend.util
 
 import android.content.Context
 import android.content.Intent

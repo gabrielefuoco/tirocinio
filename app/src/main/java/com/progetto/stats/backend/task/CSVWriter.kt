@@ -1,7 +1,8 @@
-package com.progetto.stats.util
+package com.progetto.stats.backend.task
 
 import android.content.Context
-import com.progetto.stats.util.db.Db_Stats
+import com.progetto.stats.backend.database.StatDataClass
+import com.progetto.stats.backend.util.BatteryData
 import java.io.File
 import java.io.FileWriter
 import java.time.LocalTime
@@ -20,7 +21,7 @@ class CSVWriter(file: File) {
         writer.close()
     }
 
-    class DbStatsToCSV(val stats: List<Db_Stats<String, Long, Long, Long, String>>, val context: Context) {
+    class DbStatsToCSV(val stats: List<StatDataClass<String, Long, Long, Long, String>>, val context: Context) {
         val isCharging = BatteryData.isCharging(context)
         val batteryPercentage = BatteryData.getBatteryPercentage(context)
         fun write() {

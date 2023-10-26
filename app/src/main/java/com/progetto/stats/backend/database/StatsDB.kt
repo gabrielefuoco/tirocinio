@@ -1,11 +1,11 @@
-package com.progetto.stats.util.db
+package com.progetto.stats.backend.database
 
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 
-class CalculatedDBStats(context: Context, factory: SQLiteDatabase.CursorFactory?) :
+class StatsDB(context: Context, factory: SQLiteDatabase.CursorFactory?) :
     SQLiteOpenHelper(context, DATABASE_NAME, factory, DATABASE_VERSION) {
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -48,9 +48,8 @@ class CalculatedDBStats(context: Context, factory: SQLiteDatabase.CursorFactory?
     }
 
 
-
-    fun getAllUsageStats(): List<Db_Stats<String, Long, Long, Long,String>> {
-        val usageStatsList = mutableListOf<Db_Stats<String, Long, Long, Long,String>>()
+    fun getAllUsageStats(): List<StatDataClass<String, Long, Long, Long,String>> {
+        val usageStatsList = mutableListOf<StatDataClass<String, Long, Long, Long,String>>()
         val db = this.readableDatabase
         val cursor = db.query(TABLE_NAME, null, null, null, null, null, null)
 
@@ -71,7 +70,7 @@ class CalculatedDBStats(context: Context, factory: SQLiteDatabase.CursorFactory?
 
                     // Aggiungi solo se la somma dei tempi in foreground e in background è maggiore di 0L
                     if (totalTimeInForeground + totalTimeInBackground > 0L) {
-                        val usageStats = Db_Stats(appName, totalTimeInForeground, totalTimeInBackground, lastTimeStamp,packageName)
+                        val usageStats = StatDataClass(appName, totalTimeInForeground, totalTimeInBackground, lastTimeStamp,packageName)
                         usageStatsList.add(usageStats)
                     }
                 } while (cur.moveToNext())
@@ -89,7 +88,6 @@ class CalculatedDBStats(context: Context, factory: SQLiteDatabase.CursorFactory?
         db.close()
         return rowsAffected
     }
-
     fun deleteAllRows(): Int {
         val db = this.writableDatabase
         val rowsAffected = db.delete(TABLE_NAME, null, null)
@@ -98,9 +96,9 @@ class CalculatedDBStats(context: Context, factory: SQLiteDatabase.CursorFactory?
     }
 
     companion object {
-        private val DATABASE_NAME = "db"
+        private val DATABASE_NAME = "Database"
         private val DATABASE_VERSION = 1
-        private val TABLE_NAME = "calculated_stats_table"
+        private val TABLE_NAME = "usage_stats_table"
         private val ID_COL = "id"
         private val APP_NAME_COL = "app_name"
         private val PACKAGE_NAME_COL = "package_name"

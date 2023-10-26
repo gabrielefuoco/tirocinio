@@ -1,4 +1,4 @@
-package com.progetto.stats
+package com.progetto.stats.backend.util
 
 import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager

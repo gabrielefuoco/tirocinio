@@ -1,4 +1,4 @@
-package com.progetto.stats.util
+package com.progetto.stats.backend
 
 import android.app.AppOpsManager
 import android.content.Context
@@ -13,7 +13,7 @@ import androidx.work.WorkManager
 import com.chaquo.python.PyObject
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
-import com.progetto.stats.util.db.AddToDBWorker
+import com.progetto.stats.backend.task.AddToDBWorker
 import java.util.concurrent.TimeUnit
 
 class Helper(val context: Context) {

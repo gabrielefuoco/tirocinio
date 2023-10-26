@@ -1,4 +1,4 @@
-package com.progetto.stats.util.db
+package com.progetto.stats.backend.task
 
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
@@ -11,8 +11,9 @@ import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import com.progetto.stats.UsageStats
-import com.progetto.stats.util.CSVWriter
+import com.progetto.stats.backend.database.CalculatedStatsDB
+import com.progetto.stats.backend.database.StatsDB
+import com.progetto.stats.backend.util.UsageStats
 import kotlinx.coroutines.*
 import java.lang.Long
 import kotlin.Exception
@@ -21,8 +22,8 @@ import kotlin.String
 class AddToDBWorker(val context: Context, workerParams: WorkerParameters) :
     CoroutineWorker(context, workerParams) {
     private val uStats = UsageStats
-    private val dbStats = DBStats(context, null)
-    private val calculatedDBStats = CalculatedDBStats(context, null)
+    private val statsDB = StatsDB(context, null)
+    private val calculatedStatsDB = CalculatedStatsDB(context, null)
     private val packageManager = context.packageManager
 
 
@@ -68,11 +69,11 @@ class AddToDBWorker(val context: Context, workerParams: WorkerParameters) :
         //prendo le nuove statistiche con UsageStatsManager
         val stats=uStats.getUsageStatsList(context)
         //prendo le precedenti statistiche dal db
-        val oldStatsList=dbStats.getAllUsageStats()
+        val oldStatsList=statsDB.getAllUsageStats()
 
         //svuoto i db
-        dbStats.deleteAllRows()
-        calculatedDBStats.deleteAllRows()
+        statsDB.deleteAllRows()
+        calculatedStatsDB.deleteAllRows()
 
         for (stat in stats) {
             val appName = try {
@@ -89,7 +90,7 @@ class AddToDBWorker(val context: Context, workerParams: WorkerParameters) :
             //se il tempo tot >0
             if(totalTimeInBackground+totalTimeInForeground>0L) {
                 //aggiungo (o aggiorno) al db la nuova statistica
-                dbStats.addUsageStats(
+                statsDB.addUsageStats(
                     appName = appName,
                     totalTimeInForeground = totalTimeInForeground,
                     totalTimeInBackground = totalTimeInBackground,
@@ -113,7 +114,7 @@ class AddToDBWorker(val context: Context, workerParams: WorkerParameters) :
                 }
             }
             //aggiungo la statistica al db delle statistiche calcolate
-            calculatedDBStats.addUsageStats(
+            calculatedStatsDB.addUsageStats(
                 appName = appName,
                 totalTimeInForeground = newForegroundTime,
                 totalTimeInBackground = newBackgroundTime,
@@ -123,7 +124,7 @@ class AddToDBWorker(val context: Context, workerParams: WorkerParameters) :
         }
 
         //salvo la lista su file CSV
-        val dbStatsToCSV = CSVWriter.DbStatsToCSV(calculatedDBStats.getAllUsageStats(), context)
+        val dbStatsToCSV = CSVWriter.DbStatsToCSV(calculatedStatsDB.getAllUsageStats(), context)
         dbStatsToCSV.write()
 
     }

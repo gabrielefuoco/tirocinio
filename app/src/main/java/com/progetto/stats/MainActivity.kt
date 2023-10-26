@@ -5,7 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.progetto.stats.ui.pages.MainBody
-import com.progetto.stats.util.Helper
+import com.progetto.stats.backend.Helper
 
 
 class MainActivity : ComponentActivity() {

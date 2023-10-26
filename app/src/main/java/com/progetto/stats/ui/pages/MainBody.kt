@@ -54,16 +54,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
+import com.progetto.stats.backend.Helper
+import com.progetto.stats.backend.database.CalculatedStatsDB
+import com.progetto.stats.backend.database.StatDataClass
+import com.progetto.stats.backend.util.BatteryData
 import com.progetto.stats.ui.theme.ProgettoTheme
-import com.progetto.stats.util.BatteryData
-import com.progetto.stats.util.Helper
-import com.progetto.stats.util.db.CalculatedDBStats
-import com.progetto.stats.util.db.Db_Stats
 import java.util.Date
 
 class MainBody(val context: Context) {
     val packageManager: PackageManager = context.getPackageManager()
-    val calculatedDBStats = CalculatedDBStats(context, null)
+    val calculatedStatsDB = CalculatedStatsDB(context, null)
 
     @Composable
     fun body(loginPage : Boolean = false){
@@ -167,7 +167,7 @@ class MainBody(val context: Context) {
                 }
             }
 
-            //DA MODIFICARE COI VALORI CALCOLATI
+            TODO("da modificare con i valori reali calcolati")
             Column (modifier= Modifier
                 .padding(12.dp)
                 .align(Alignment.BottomStart), ){
@@ -315,7 +315,7 @@ class MainBody(val context: Context) {
 
 
     @Composable
-    fun StatsCard(stats: Db_Stats<String, Long, Long, Long, String>){
+    fun StatsCard(stats: StatDataClass<String, Long, Long, Long, String>){
         var expanded by rememberSaveable { mutableStateOf(false) }
         CreateStatsCard(
             appName = stats.appName,
@@ -347,7 +347,7 @@ class MainBody(val context: Context) {
             item{
                 batteriaCard()
             }
-            itemsIndexed(calculatedDBStats.getAllUsageStats()) { index, stat ->
+            itemsIndexed(calculatedStatsDB.getAllUsageStats()) { index, stat ->
                 if (stat != null) {
                     StatsCard(stat)
                 }

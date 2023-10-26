@@ -1,6 +1,6 @@
-package com.progetto.stats.util.db
+package com.progetto.stats.backend.database
 
-data class Db_Stats<A, B, C, D,E >(
+data class StatDataClass<A, B, C, D,E >(
     val appName: A,
     val totalTimeInForeground: B,
     val totalTimeInBackground: C,
