@@ -4,6 +4,8 @@ import android.content.Context
 import com.progetto.stats.util.db.Db_Stats
 import java.io.File
 import java.io.FileWriter
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 class CSVWriter(file: File) {
     private val writer = if (file.exists()) FileWriter(file, true) else FileWriter(file)
@@ -19,7 +21,10 @@ class CSVWriter(file: File) {
     }
 
     class DbStatsToCSV(val stats: List<Db_Stats<String, Long, Long, Long, String>>, val context: Context) {
+        val isCharging = BatteryData.isCharging(context)
+        val batteryPercentage = BatteryData.getBatteryPercentage(context)
         fun write() {
+            //scrive nella dir Android/data/com.progetto.stats/files
             val externalStorageDir = context.getExternalFilesDir(null)
             val fileName = "stats.csv"
             val file = File(externalStorageDir, fileName)
@@ -30,8 +35,10 @@ class CSVWriter(file: File) {
                     stat.appName,
                     stat.totalTimeInForeground.toString(),
                     stat.totalTimeInBackground.toString(),
-                    stat.lastTimeStamp.toString(),
-                    stat.packageName
+                    LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")).toString(),
+                    stat.packageName,
+                    batteryPercentage.toString(),
+                    isCharging.toString()
                 )
                 csvWriter.writeLine(line)
             }

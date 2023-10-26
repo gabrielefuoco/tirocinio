@@ -30,7 +30,6 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -66,17 +65,21 @@ class MainBody(val context: Context) {
     val packageManager: PackageManager = context.getPackageManager()
     val calculatedDBStats = CalculatedDBStats(context, null)
 
-
-
-
-
+    @Composable
+    fun body(loginPage : Boolean = false){
+        if(!Helper(context).permissionCheck()||loginPage){
+            FirstLogin.firstLoginPage(context = context)}
+        else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !loginPage) {
+            StatsList()
+        }
+    }
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun scaffold(){
         var darkTheme by rememberSaveable { mutableStateOf(false) }
-
+        var loginPage by rememberSaveable { mutableStateOf(false)}
         ProgettoTheme(darkTheme = darkTheme){
             Surface(
                 modifier = Modifier.fillMaxSize(),
@@ -84,13 +87,17 @@ class MainBody(val context: Context) {
             ) {
                 Scaffold(
                     topBar = {
-                        TopBar(onClick = { darkTheme = !darkTheme })
-                    }
+                        TopBar(onClick = {
+                            loginPage = !loginPage
+                        },
+                            onClick2 = {darkTheme = !darkTheme},
+                            darkTheme=darkTheme
+                        )}
 
                 ) {it->
                     Column {
                         Spacer(modifier = Modifier.padding(vertical = (it.calculateTopPadding()/3)*2 ))
-                        body()
+                        body(loginPage=loginPage)
                     }
                 }
             }
@@ -98,7 +105,7 @@ class MainBody(val context: Context) {
     }
 
     @Composable
-    fun TopBar(onClick: () -> Unit ) {
+    fun TopBar(onClick: () -> Unit, onClick2: () -> Unit , darkTheme: Boolean=false) {
         Card(
             shape = RoundedCornerShape(1.dp),
             elevation = CardDefaults.cardElevation(
@@ -113,23 +120,17 @@ class MainBody(val context: Context) {
             ) {
                 IconButton(onClick = onClick, modifier = Modifier)
                 {
-                    Icon(Icons.Filled.Settings, contentDescription = "", tint = MaterialTheme.colorScheme.onSurface)
+                    Text(text = "⚙️")
                 }
-
-
+                IconButton(onClick = onClick2, modifier = Modifier)
+                {
+                   if(!darkTheme)Text(text = "\uD83C\uDF19") else Text(text = "☀️")
+                     }
             }
         }
     }
 
-    @Composable
-    fun body(){
-        if(!Helper(context).permissionCheck()){
-            FirstLogin.firstLoginPage(context = context)}
-        else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            StatsList()
-        }
 
-    }
 
     @Composable
     fun batteriaCard() {
@@ -166,7 +167,10 @@ class MainBody(val context: Context) {
                 }
             }
 
-            Column (modifier= Modifier.padding(12.dp).align(Alignment.BottomStart), ){
+            //DA MODIFICARE COI VALORI CALCOLATI
+            Column (modifier= Modifier
+                .padding(12.dp)
+                .align(Alignment.BottomStart), ){
                 Row( verticalAlignment = Alignment.Bottom) {
                     Text(text ="8", color = Color.White,fontSize = 54.sp, modifier = Modifier.alignBy(
                         FirstBaseline
@@ -282,7 +286,6 @@ class MainBody(val context: Context) {
                 }
                 if (expanded) {
                     if(foregroundTimeInMillis!=0L){
-
                         Text(
                             text = "Tempo in primo piano: $foregroundTimeInMinutes minuti e $foregroundTimeInSeconds secondi",
                             color = MaterialTheme.colorScheme.onSurface,

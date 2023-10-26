@@ -1,42 +1,70 @@
 package com.progetto.stats.util.db
 
 import android.annotation.SuppressLint
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
+import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
+import androidx.work.ForegroundInfo
+import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.progetto.stats.UsageStats
 import com.progetto.stats.util.CSVWriter
 import kotlinx.coroutines.*
 import java.lang.Long
 import kotlin.Exception
+import kotlin.String
 
 class AddToDBWorker(val context: Context, workerParams: WorkerParameters) :
     CoroutineWorker(context, workerParams) {
-    private val handler = Handler(Looper.getMainLooper())
     private val uStats = UsageStats
     private val dbStats = DBStats(context, null)
     private val calculatedDBStats = CalculatedDBStats(context, null)
     private val packageManager = context.packageManager
 
+
     override suspend fun doWork(): Result {
         return try {
-            withContext(Dispatchers.IO) {
-                addToDB()
-            }
-            Log.d("debug_tag","chiamata addToDb eseguita ")
+            setForeground(createForegroundInfo("Aggiunta al database in corso"))
+            addToDB()
             Result.success()
         } catch (e: Exception) {
-            Log.d("debug_tag","chiamata addToDb fallita ")
             Result.failure()
         }
     }
 
+    private fun createForegroundInfo(progress: String): ForegroundInfo {
+        val id = "channelId"
+        val title = "Aggiunta al database"
+        val cancel = "Annulla"
+        val notificationId = 1
+        // intent per annullamento
+        val intent = WorkManager.getInstance(applicationContext)
+            .createCancelPendingIntent(getId())
+        // canale di notifica
+        val channel = NotificationChannel(id, title, NotificationManager.IMPORTANCE_HIGH)
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
+        val notification = NotificationCompat.Builder(applicationContext, id)
+            .setContentTitle(title)
+            .setTicker(title)
+            .setContentText(progress)
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setOngoing(true)
+            .addAction(android.R.drawable.ic_delete, cancel, intent)
+            .build()
+
+        return ForegroundInfo(notificationId, notification)
+    }
+
+
+
     @SuppressLint("NewApi")
     private fun addToDB(){
+        Log.d("debug_tag","-ADD")
         //prendo le nuove statistiche con UsageStatsManager
         val stats=uStats.getUsageStatsList(context)
         //prendo le precedenti statistiche dal db
@@ -68,7 +96,7 @@ class AddToDBWorker(val context: Context, workerParams: WorkerParameters) :
                     lastTimeStamp = lastTimeStamp,
                     packageName = stat.key
                 )
-                //controllo se c'era una statistica di utilizzo con lo stesso appName
+                // se c'era una statistica di utilizzo con lo stesso appName la restituisco
                 val oldStats = oldStatsList.firstOrNull { it.appName == appName }
                 if (oldStats != null) {
                     val oldForegroundTime = oldStats.totalTimeInForeground

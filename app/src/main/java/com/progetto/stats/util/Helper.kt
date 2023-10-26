@@ -5,15 +5,19 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.work.BackoffPolicy
+import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.chaquo.python.PyObject
 import com.chaquo.python.Python
+import com.chaquo.python.android.AndroidPlatform
 import com.progetto.stats.util.db.AddToDBWorker
 import java.util.concurrent.TimeUnit
 
 class Helper(val context: Context) {
+     val INTERVALLOCAMPIONAMENTO:Long =15
 
     fun permissionCheck():Boolean{
         try {
@@ -30,8 +34,9 @@ class Helper(val context: Context) {
             return false
         }
     }
+    
 
-    fun provaSK(){
+    fun provaScikitLearn(){
         val python = Python.getInstance()
         val pythonFile = python.getModule("prova")
         val calcolaErroreMedioAssoluto = pythonFile.callAttr("calcola_errore_medio_assoluto") as PyObject
@@ -41,9 +46,25 @@ class Helper(val context: Context) {
 
 
     fun schedulePeriodicAddToDBWorker() {
-        val addToDBWorkRequest = PeriodicWorkRequestBuilder<AddToDBWorker>(15, TimeUnit.MINUTES).build()
+        val constraints = Constraints.Builder()
+            .setRequiresCharging(true)
+            .build()
+
+        val addToDBWorkRequest = PeriodicWorkRequestBuilder<AddToDBWorker>(INTERVALLOCAMPIONAMENTO, TimeUnit.MINUTES)
+            .setConstraints(constraints)
+            .setBackoffCriteria(
+                BackoffPolicy.LINEAR,
+                1, TimeUnit.MINUTES)
+            .build()
+
         WorkManager.getInstance(context)
-            .enqueueUniquePeriodicWork("addToDBWork", ExistingPeriodicWorkPolicy.KEEP, addToDBWorkRequest)
+            .enqueueUniquePeriodicWork("addToDBWorker", ExistingPeriodicWorkPolicy.KEEP, addToDBWorkRequest)
+    }
+
+    fun startPython(){
+        if( !Python.isStarted() ) {
+            Python.start( AndroidPlatform( context ) )
+        }
     }
 
 }

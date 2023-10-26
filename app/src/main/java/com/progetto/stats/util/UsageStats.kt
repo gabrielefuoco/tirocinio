@@ -11,6 +11,7 @@ import java.util.Calendar
 object UsageStats {
 
 
+    //restituisce tutte le statistiche di utilizzo delle ultime 24 ore circa
     @RequiresApi(Build.VERSION_CODES.Q)
     fun getUsageStatsList(context: Context): Map<String, UsageStats> {
         val usm = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
@@ -29,6 +30,7 @@ object UsageStats {
 
 
 /*
+        DEPRECATO PERCHE' NON RIESCO A CALCOLARE IL TEMPO IN BACKGROUND
         fun getAppStats(context: Context, minuti: Int = 60): List<Db_Stats<String, Long, Long, Long, String>> {
         val foregroundStats = getAppInForeground(context, minuti)
         val backgroundStats = getAppInBackground(context, minuti)

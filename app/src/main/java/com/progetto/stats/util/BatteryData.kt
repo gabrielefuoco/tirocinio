@@ -38,8 +38,8 @@ object BatteryData {
 
     fun getBatteryPercentage(context: Context): Int {
         val batteryManager = context.getSystemService(ComponentActivity.BATTERY_SERVICE) as BatteryManager
-        val batteryInfo = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
-        return batteryInfo
+        val batteryPercentage = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+        return batteryPercentage
     }
 
 

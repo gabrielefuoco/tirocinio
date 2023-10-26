@@ -86,7 +86,7 @@ object FirstLogin {
                 ) {
                     Text(
                         text = "Cliccando su conferma verrai reindirizzato alla schermata di accesso ai dati di utilizzo.\n Cerca la voce \"Progetto\" " +
-                                "e clicca su di essa.\n Infine clicca su consenti.\n Senza il tuo consenso l'app non funzionerà correttamente.",
+                                "e clicca su di essa.\n Infine clicca su consenti.\n Se non concederai il tuo consenso l'app non funzionerà correttamente.",
                         style = MaterialTheme.typography.bodyLarge,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()

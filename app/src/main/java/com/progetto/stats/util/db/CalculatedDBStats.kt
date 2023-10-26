@@ -28,7 +28,6 @@ class CalculatedDBStats(context: Context, factory: SQLiteDatabase.CursorFactory?
 
     fun addUsageStats(appName: String, totalTimeInForeground: Long, totalTimeInBackground: Long, lastTimeStamp: Long, packageName: String) {
         val db = this.writableDatabase
-        var stats: Db_Stats<String, Long, Long, Long,String>
         db.use { db ->
             val cursor = db.rawQuery("SELECT * FROM $TABLE_NAME WHERE $APP_NAME_COL = ?", arrayOf(appName))
             cursor.use { cursor ->
